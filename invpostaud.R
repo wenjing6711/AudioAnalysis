@@ -13,21 +13,17 @@ invpostaud <- function(y,fmax,fbtype,broaden){
     broaden = 0;
   }
   
-  nbands = nrow(y)
-  nframes = ncol(y);
-  
-  ## equal loundness weights stolen from rasta code
-  ##eql = [0.000479 0.005949 0.021117 0.044806 0.073345 0.104417 0.137717 ...
-  ##      0.174255 0.215590 0.263260 0.318302 0.380844 0.449798 0.522813 0.596597];
-  
+  nbands = ncol(y)
+  nframes = nrow(y);
+ 
   if(fbtype == 'bark'){
-    bandcfhz = bark2hz(seq(0, hz2bark(fmax), nbands));
+    bandcfhz = tuneR:::bark2hz(seq(0, hz2bark(fmax), nbands));
   }
   else if(fbtype == 'mel'){
-    bandcfhz = mel2hz(seq(0, hz2mel(fmax), nbands));
+    bandcfhz = tuneR:::mel2hz(seq(0, hz2mel(fmax), nbands));
   }
   else if(fbtype == 'htkmel' || fbtype == 'fcmel'){
-    bandcfhz = mel2hz(seq(0, hz2mel(fmax,1), nbands),1);
+    bandcfhz = tuneR:::mel2hz(seq(0, hz2mel(fmax,1), nbands),1);
   }
   else{
     print(paste('unknown fbtype', fbtype, sep = " "))

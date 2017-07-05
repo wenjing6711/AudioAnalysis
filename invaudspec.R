@@ -3,7 +3,6 @@
 ######################################
 invaudspec <- function(aspectrum, sr, nfft, fbtype, minfreq, 
                        maxfreq, sumpower, bwidth){
-
   nargin <- length(as.list(match.call())) -1
   
   if(nargin < 2){
@@ -19,6 +18,7 @@ invaudspec <- function(aspectrum, sr, nfft, fbtype, minfreq,
     minfreq = 0
   }
   if(nargin < 6){  
+
     maxfreq = sr/2
   }
   if(nargin < 7){
@@ -28,8 +28,8 @@ invaudspec <- function(aspectrum, sr, nfft, fbtype, minfreq,
     bwidth = 1.0
   }
   
-  nfilts = nrow(aspectrum)
-  nframes = ncol(aspectrum);
+  nfilts = ncol(aspectrum)
+  nframes = nrow(aspectrum);
   
   if (fbtype == 'bark'){
     wts = tuneR:::fft2barkmx(nfft, sr, nfilts, bwidth, minfreq, maxfreq)$wts;
@@ -40,7 +40,7 @@ invaudspec <- function(aspectrum, sr, nfft, fbtype, minfreq,
   }else if (fbtype == 'fcmel'){
     wts = tuneR:::fft2melmx(nfft, sr, nfilts, bwidth, minfreq, maxfreq, 1)$wts
   }else{
-    print(paste('fbtype ', fbtype, 'not recognized', sep = " "))
+    print(paste('fbtype', fbtype, 'not recognized', sep = " "))
   }
   
   ## Cut off 2nd half
@@ -48,13 +48,17 @@ invaudspec <- function(aspectrum, sr, nfft, fbtype, minfreq,
   
   ## Just transpose, fix up 
   ww = t(wts)%*%wts;
-  iwts = t(wts)/max(mean(diag(ww))/100, sum(ww))
-  #iwts = t(wts)/kronecker(matrix(1,1,nfilts),t(max(mean(diag(ww))/100, sum(ww))));
+
+  max_vec = colSums(ww)
+  max_vec[which(mean(diag(ww))/100 > max_vec)] = mean(diag(ww))/100
+
+  iwts = t(wts)/matrix(rep(max_vec,nfilts), nrow = length(max_vec), ncol = nfilts);
+
   ## Apply weights
   if (sumpower){
-    spec = iwts%*%aspectrum
+    spec = t(iwts%*%t(aspectrum))
   }else{
-    spec = (iwts%*%sqrt(aspectrum))^2;
+    spec = t((iwts%*%sqrt(t(aspectrum)))^2);
   }
   
   result = list()

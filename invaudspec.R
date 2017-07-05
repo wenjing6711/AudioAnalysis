@@ -52,8 +52,7 @@ invaudspec <- function(aspectrum, sr, nfft, fbtype, minfreq,
   max_vec = colSums(ww)
   max_vec[which(mean(diag(ww))/100 > max_vec)] = mean(diag(ww))/100
 
-  iwts = t(wts)/matrix(rep(max_vec,nfilts), nrow = length(max_vec), ncol = nfilts);
-
+  iwts = t(wts)/matrix(rep(t(max_vec),nfilts), nrow = length(max_vec), ncol = nfilts, byrow = FALSE);
   ## Apply weights
   if (sumpower){
     spec = t(iwts%*%t(aspectrum))
